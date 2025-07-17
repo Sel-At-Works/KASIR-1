@@ -166,8 +166,14 @@ if ($phone_num) {
     $totalSetelahDiskon = $totalSeluruh;
 }
 
+// Ambil total setelah diskon dari POST jika ada (dari form transaksi)
+if (isset($_POST['totalSetelahDiskonInput']) && is_numeric($_POST['totalSetelahDiskonInput'])) {
+    $totalSetelahDiskon = (int)$_POST['totalSetelahDiskonInput'];
+}
+$bayar = intval($bayar);
 $kembalian = $bayar - $totalSetelahDiskon;
 if ($kembalian < 0) $kembalian = 0;
+$totalSeluruh = $totalSeluruhTemp;
 ?>
 
 
@@ -257,9 +263,11 @@ if ($kembalian < 0) $kembalian = 0;
 </div>
 
 <button onclick="window.print()" class="btn btn-primary print-btn">Cetak Struk</button>
-<a href="kirimwa.php?kirim_wa=true&id_nota=<?= $idNota ?>&bayar=<?= $bayar ?>&diskon=<?= $totalDiskonPersen ?>">
-    <button class="btn btn-success print-btn">Kirim WA</button>
-</a>
+<?php if ($member): ?>
+    <a href="kirimwa.php?kirim_wa=true&id_nota=<?= $idNota ?>&bayar=<?= $bayar ?>&diskon=<?= $totalDiskonPersen ?>">
+        <button class="btn btn-success print-btn">Kirim WA</button>
+    </a>
+<?php endif; ?>
 
 </body>
 </html>

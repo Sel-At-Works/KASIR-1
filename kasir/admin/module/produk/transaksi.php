@@ -309,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
                                                 </td>
                                             </tr> -->
                                             <tr>
-                                                <td>Diskon Member (<span id="diskonMember"><?= number_format($potongan_diskon_tetap) ?></span>)</td>
+                                                <td>Diskon Member (<span id="diskonMember">0%</span>)</td>
                                                 <td colspan="3"><span id="totalDiskonMember">Rp. 0</span></td>
                                             </tr>
                                             <tr>
@@ -317,6 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
                                                 <td colspan="3"><span id="totalSetelahDiskon">Rp. 0</span></td>
                                             </tr>
                                             <input type="hidden" id="diskonPoin" name="diskonPoin" value="0">
+                                            <input type="hidden" id="totalSetelahDiskonInput" name="totalSetelahDiskonInput" value="0">
                                         </form>
 
                                         </tfoot>
@@ -393,17 +394,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
 
 
     function bayarSekarang() {
+        // Pastikan totalSetelahDiskonInput selalu diupdate sebelum submit
+        var totalSetelahDiskon = document.getElementById('totalSetelahDiskon');
+        var totalSetelahDiskonInput = document.getElementById('totalSetelahDiskonInput');
+        if (totalSetelahDiskon && totalSetelahDiskonInput) {
+            var val = totalSetelahDiskon.innerText.replace(/[^\d,]/g, '');
+            var num = parseInt(val.split(',')[0].replace(/\./g, '')) || 0;
+            if (num === 0) {
+                var totalInput = document.getElementById('total');
+                totalSetelahDiskonInput.value = parseInt(totalInput.value);
+            } else {
+                totalSetelahDiskonInput.value = num;
+            }
+        }
         var bayar = document.getElementById('bayar').value;
         var totalText = document.getElementById('totalSetelahDiskon').innerText.replace(/[^\d,]/g, '');
         var totalParts = totalText.split(',');
         var total = parseInt(totalParts[0].replace(/\./g, '')) || 0;
-
         if (bayar === '' || isNaN(bayar) || parseInt(bayar) <= 0) {
             alert("Masukkan jumlah pembayaran yang valid!");
             document.getElementById('bayar').focus();
             return;
         }
-
         if (parseInt(bayar) < total) {
             if (phone === "") {
                 alert("Transaksi tanpa member: Masukkan nominal yang sesuai!");
@@ -419,11 +431,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
     }
 
     function hitungKembalian() {
-        // Ambil angka dari format "Rp. 9.500,00" menjadi 9500
-        // Ambil angka dari format "10.000,00" menjadi 10000 (tanpa angka di belakang koma)
-        var totalText = document.getElementById('totalSetelahDiskon').innerText.replace(/[^\d,]/g, '');
-        var totalParts = totalText.split(',');
-        var total = parseInt(totalParts[0].replace(/\./g, '')) || 0;
+        // Ambil nilai total akhir dari input hidden, jika 0 ambil dari input total
+        var totalSetelahDiskonInput = document.getElementById('totalSetelahDiskonInput');
+        var totalInput = document.getElementById('total');
+        var total = parseInt(totalSetelahDiskonInput.value) || 0;
+        if (total === 0 && totalInput) {
+            total = parseInt(totalInput.value) || 0;
+        }
         var bayar = parseInt(document.getElementById('bayar').value);
         var kembalian = bayar - total;
         document.getElementById('kembalian').value = kembalian;
@@ -467,10 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
                     const totalHarga = parseInt(total);
                     const diskon = (diskonPoin * totalHarga);
                     document.getElementById("diskonPoin").value = usedPoin;
-
-                    console.log("Diskon Poin:", diskon);
-
-                    document.getElementById("diskonMember").innerText = diskonPoin * 100 + "%";
+                    document.getElementById("diskonMember").innerText = (diskonPoin * 100) + "%";
                     document.getElementById("totalDiskonMember").innerText = diskon.toLocaleString('id-ID', {
                         style: 'currency',
                         currency: 'IDR'
@@ -479,7 +490,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
                         style: 'currency',
                         currency: 'IDR'
                     });
-                    // document.getElementById("diskonPoin").innerText = data.point + " Poin";
+                    document.getElementById("totalSetelahDiskonInput").value = totalHarga - diskon;
                 } else if (data.status === "non-active") {
                     alert("Member dengan nomor telepon ini tidak aktif.");
                 } else {
@@ -495,15 +506,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
     window.onload = function() {
         var totalSetelahDiskon = document.getElementById('totalSetelahDiskon');
         var totalInput = document.getElementById('total');
-        if (totalSetelahDiskon && totalInput) {
-            // Jika belum ada nilai (misal non-member), isi dengan total belanja
+        var totalSetelahDiskonInput = document.getElementById('totalSetelahDiskonInput');
+        if (totalSetelahDiskon && totalInput && totalSetelahDiskonInput) {
             var val = totalSetelahDiskon.innerText.replace(/[^\d,]/g, '');
             var num = parseInt(val.split(',')[0].replace(/\./g, '')) || 0;
             if (num === 0) {
                 totalSetelahDiskon.innerText = parseInt(totalInput.value).toLocaleString('id-ID', {style:'currency',currency:'IDR'});
+                totalSetelahDiskonInput.value = parseInt(totalInput.value);
+            } else {
+                totalSetelahDiskonInput.value = num;
             }
         }
-        // Pastikan kembalian otomatis dihitung saat halaman load
         hitungKembalian();
     }
+    // Update totalSetelahDiskonInput setiap kali field bayar atau phone diubah
+    ['bayar','phone'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){
+            el.addEventListener('input', function(){
+                var totalSetelahDiskon = document.getElementById('totalSetelahDiskon');
+                var totalSetelahDiskonInput = document.getElementById('totalSetelahDiskonInput');
+                var totalInput = document.getElementById('total');
+                if (totalSetelahDiskon && totalSetelahDiskonInput) {
+                    var val = totalSetelahDiskon.innerText.replace(/[^\d,]/g, '');
+                    var num = parseInt(val.split(',')[0].replace(/\./g, '')) || 0;
+                    if (num === 0 && totalInput) {
+                        totalSetelahDiskonInput.value = parseInt(totalInput.value) || 0;
+                    } else {
+                        totalSetelahDiskonInput.value = num;
+                    }
+                }
+                hitungKembalian();
+            });
+        }
+    });
 </script>
