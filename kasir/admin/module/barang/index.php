@@ -191,7 +191,7 @@
 											<td><input type="text" name="merk" class="form-control" placeholder="Merk Barang" required></td>
 										</tr>
 										<tr>
-											<td>Harga Beli</td>
+											<td>Harga Beli( modal )</td>
 											<td><input type="number" name="beli" class="form-control" placeholder="Harga Beli" required></td>
 										</tr>
 										<tr>

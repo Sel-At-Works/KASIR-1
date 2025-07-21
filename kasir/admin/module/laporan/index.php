@@ -1,21 +1,21 @@
 <?php
 include '../../../config.php';
 include '../../../fungsi/view/view.php';
-    // Array bulan untuk tampilan bulan dalam format teks
-    $bulan_tes = array(
-        '01' => "Januari",
-        '02' => "Februari",
-        '03' => "Maret",
-        '04' => "April",
-        '05' => "Mei",
-        '06' => "Juni",
-        '07' => "Juli",
-        '08' => "Agustus",
-        '09' => "September",
-        '10' => "Oktober",
-        '11' => "November",
-        '12' => "Desember"
-    );
+// Array bulan untuk tampilan bulan dalam format teks
+$bulan_tes = array(
+    '01' => "Januari",
+    '02' => "Februari",
+    '03' => "Maret",
+    '04' => "April",
+    '05' => "Mei",
+    '06' => "Juni",
+    '07' => "Juli",
+    '08' => "Agustus",
+    '09' => "September",
+    '10' => "Oktober",
+    '11' => "November",
+    '12' => "Desember"
+);
 ?>
 
 <section id="main-content">
@@ -33,7 +33,7 @@ include '../../../fungsi/view/view.php';
                 </h3>
                 <br />
                 <h4>Cari Laporan Per Bulan</h4>
-                <form method="post" action="index.php?page=laporan&cari=ok">
+                <!-- <form method="post" action="index.php?page=laporan&cari=ok">
                     <table class="table table-striped">
                         <tr>
                             <th>Pilih Bulan</th>
@@ -70,43 +70,11 @@ include '../../../fungsi/view/view.php';
                                     <i class="fa fa-search"></i> Cari
                                 </button>
                                 <a href="index.php?page=laporan" class="btn btn-success">
-    <i class="fa fa-refresh"></i> Refresh
-</a>
+                                    <i class="fa fa-refresh"></i> Refresh
+                                </a>
 
-<?php if (!empty($_GET['cari']) && isset($_POST['bln'], $_POST['thn'])) { ?>
-    <a href="excel.php?cari=yes&bln=<?= htmlspecialchars($_POST['bln']); ?>&thn=<?= htmlspecialchars($_POST['thn']); ?>" class="btn btn-info">
-        <i class="fa fa-download"></i> Excel
-    </a>
-<?php } else { ?>
-    <a href="excel.php" class="btn btn-info">
-        <i class="fa fa-download"></i> Excel
-    </a>
-<?php } ?>
-
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-
-                <form method="post" action="index.php?page=laporan&hari=cek">
-                    <table class="table table-striped">
-                        <tr>
-                            <th>Pilih Hari</th>
-                            <th>Aksi</th>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="date" value="<?= date('Y-m-d'); ?>" class="form-control" name="hari">
-                            </td>
-                            <td>
-                                <input type="hidden" name="periode" value="ya">
-                                <button class="btn btn-primary">
-                                    <i class="fa fa-search"></i> Cari
-                                </button>
-                                <a href="index.php?page=laporan" class="btn btn-success">
-                                    <i class="fa fa-refresh"></i> Refresh</a>
-                                <?php if (!empty($_GET['hari'])) { ?>
-                                    <a href="excel.php?hari=cek&tgl=<?= $_POST['hari']; ?>" class="btn btn-info">
+                                <?php if (!empty($_GET['cari']) && isset($_POST['bln'], $_POST['thn'])) { ?>
+                                    <a href="excel.php?cari=yes&bln=<?= htmlspecialchars($_POST['bln']); ?>&thn=<?= htmlspecialchars($_POST['thn']); ?>" class="btn btn-info">
                                         <i class="fa fa-download"></i> Excel
                                     </a>
                                 <?php } else { ?>
@@ -114,29 +82,91 @@ include '../../../fungsi/view/view.php';
                                         <i class="fa fa-download"></i> Excel
                                     </a>
                                 <?php } ?>
+
                             </td>
                         </tr>
                     </table>
-                </form>
+                </form> -->
 
+                <form method="post" action="index.php?page=laporan&hari=cek">
+    <table class="table table-striped">
+        <tr>
+            <th>Pilih Hari</th>
+            <th>Aksi</th>
+        </tr>
+        <tr>
+            <td>
+                <div class="row">
+                    <?php
+                    // Jika sudah submit, ambil nilai day, month, year dari $_POST['hari']
+                    $dayValue = '';
+                    $monthValue = '';
+                    $yearValue = '';
+                    if (!empty($_POST['hari'])) {
+                        $parts = explode('-', $_POST['hari']); // yyyy-mm-dd
+                        if (count($parts) === 3) {
+                            $yearValue = $parts[0];
+                            $monthValue = $parts[1];
+                            $dayValue = $parts[2];
+                        }
+                    }
+                    ?>
+                    <div class="col">
+                        <input type="number" class="form-control" name="day" placeholder="DD" min="1" max="31" value="<?= $dayValue; ?>" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" name="month" placeholder="MM" min="1" max="12" value="<?= $monthValue; ?>" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" name="year" placeholder="YYYY" min="2000" max="2100" value="<?= $yearValue; ?>" required>
+                    </div>
+                </div>
+                <!-- Hidden field untuk gabungan tanggal -->
+                <input type="hidden" name="hari" id="hari">
+            </td>
+            <td>
+                <input type="hidden" name="periode" value="ya">
+                <button type="submit" class="btn btn-primary" onclick="combineDate()">
+                    <i class="fa fa-search"></i> Cari
+                </button>
+                <a href="index.php?page=laporan" class="btn btn-success">
+                    <i class="fa fa-refresh"></i> Refresh</a>
+                <?php if (!empty($_GET['hari'])) { ?>
+                    <a href="excel.php?hari=cek&tgl=<?= $_POST['hari']; ?>" class="btn btn-info">
+                        <i class="fa fa-download"></i> Excel
+                    </a>
+                <?php } else { ?>
+                    <a href="excel.php" class="btn btn-info">
+                        <i class="fa fa-download"></i> Excel
+                    </a>
+                <?php } ?>
+            </td>
+        </tr>
+    </table>
+</form>
                 <div class="clearfix" style="border-top:1px solid #ccc;"></div>
                 <br /><br />
 
                 <!-- Tabel Data Barang -->
+                <!-- Diagram Batang Laporan -->
+                <div style="max-width:500px;margin:auto;">
+                  <canvas id="laporanChart" width="400" height="180"></canvas>
+                </div>
                 <div class="modal-view">
                     <table class="table table-bordered" id="example1">
-                    <thead>
-                        <tr style="background:#DFF0D8; color:#333;">
-                            <th style="width:5%;">No</th>
-                            <th>ID Barang</th>
-                            <th>Nama Barang</th>
-                            <th style="width:10%;">Jumlah</th>
-                            <th style="width:10%;">Modal</th>
-                            <th style="width:10%;">Total</th>
-                            <!-- <th>Kasir</th> -->
-                            <th style="width:15%;">Tanggal Input</th>
-                        </tr>
-                    </thead>
+                        <thead>
+                            <tr style="background:#DFF0D8; color:#333;">
+                                <th style="width:5%;">No</th>
+                                <th>ID Barang</th>
+                                <th>Nama Barang</th>
+                                <th style="width:10%;">Jumlah</th>
+                                <th style="width:10%;">Modal</th>
+                                <th style="width:10%;">Total</th>
+                                <!-- <th>Kasir</th> -->
+                                <th style="widht:10%">Keuntungan</th>
+                                <th style="width:15%;">Tanggal Input</th>
+                            </tr>
+                        </thead>
 
                         <tbody>
                             <?php
@@ -157,22 +187,32 @@ include '../../../fungsi/view/view.php';
                             }
 
                             // Menampilkan data dalam tabel
+                            // Siapkan data untuk chart
+                            $labels = [];
+                            $dataJumlah = [];
+                            $dataKeuntungan = [];
                             foreach ($hasil as $isi) {
                                 $bayar += $isi['total'];
                                 $modal += $isi['harga_beli'] * $isi['jumlah'];
                                 $jumlah += $isi['jumlah'];
+                                $totalKeuntungan = $isi['total'] - ($isi['harga_beli'] * $isi['jumlah']);
+                                $labels[] = $isi['nama_barang'];
+                                $dataJumlah[] = (int)$isi['jumlah'];
+                                $dataKeuntungan[] = (int)$totalKeuntungan;
                             ?>
                                 <tr>
                                     <td><?php echo $no; ?></td>
                                     <td><?php echo $isi['id_barang']; ?></td>
-                                    <td><?php echo $isi['nama_barang']?></td>
+                                    <td><?php echo $isi['nama_barang'] ?></td>
                                     <td><?php echo $isi['jumlah']; ?></td>
                                     <td>Rp.<?php echo number_format($isi['harga_beli'] * $isi['jumlah']); ?>,-</td>
                                     <td>Rp.<?php echo number_format($isi['total']); ?>,-</td>
                                     <!-- <td><?php echo !empty($isi['nm_member']) ? $isi['nm_member'] : (isset($_SESSION['admin']['nm_member']) ? $_SESSION['admin']['nm_member'] : 'Umum'); ?></td> -->
+                                    <td><?= number_format($totalKeuntungan); ?>,-</td>
                                     <td><?php echo $isi['tanggal_input']; ?></td>
                                 </tr>
-                            <?php $no++; } ?>
+                            <?php $no++;
+                            } ?>
                         </tbody>
                         <tfoot>
                             <tr>
@@ -181,9 +221,9 @@ include '../../../fungsi/view/view.php';
                                 <th>Rp.<?php echo number_format($modal); ?>,-</th>
                                 <th>Rp.<?php echo number_format($bayar); ?>,-</th>
                                 <!-- <th style="background:#0bb365;color:#fff;">Keuntungan</th> -->
-                                <!-- <th style="background:#0bb365;color:#fff;">
+                                <th style="background:#0bb365;color:#fff;">
                                     Rp.<?php echo number_format($bayar - $modal); ?>,-
-                                </th> -->
+                                </th>
                             </tr>
                         </tfoot>
                     </table>
@@ -192,4 +232,45 @@ include '../../../fungsi/view/view.php';
             </div>
         </div>
     </section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('laporanChart').getContext('2d');
+const laporanChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: <?= json_encode($labels) ?>,
+        datasets: [
+            {
+                label: 'Jumlah Terjual',
+                data: <?= json_encode($dataJumlah) ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            },
+            {
+                label: 'Keuntungan',
+                data: <?= json_encode($dataKeuntungan) ?>,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }
+        ]
+    },
+    options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
 </section>
+
+<script>
+function combineDate() {
+    let day = document.querySelector('input[name="day"]').value.padStart(2, '0');
+    let month = document.querySelector('input[name="month"]').value.padStart(2, '0');
+    let year = document.querySelector('input[name="year"]').value;
+
+    // Gabungkan jadi format YYYY-MM-DD
+    let fullDate = `${year}-${month}-${day}`;
+    document.getElementById('hari').value = fullDate;
+}
+</script>

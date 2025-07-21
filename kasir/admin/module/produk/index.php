@@ -3,7 +3,7 @@ session_start();
 require 'config.php';
 
 // Ambil data barang dari database
-$sql = "SELECT id_barang, nama_barang, harga_beli, gambar, stok FROM barang";
+$sql = "SELECT id_barang, nama_barang, harga_beli, harga_jual, gambar, stok FROM barang";
 $query = $config->prepare($sql);
 $query->execute();
 $hasil = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -132,7 +132,7 @@ $hasil = $query->fetchAll(PDO::FETCH_ASSOC);
         <div class="card-body text-center">
           <div>
             <h5 class="card-title"><?= $row['nama_barang'] ?></h5>
-            <p class="card-text">Harga: Rp <?= number_format($row['harga_beli'], 0, ',', '.') ?></p>
+            <p class="card-text">Harga: Rp <?= number_format($row['harga_jual'], 0, ',', '.') ?></p>
           </div>
 
        <p class="card-text">Stok: <?= $row['stok'] ?></p>
@@ -141,7 +141,7 @@ $hasil = $query->fetchAll(PDO::FETCH_ASSOC);
   <form method="post" action="admin/module/produk/add_to_cart.php">
     <input type="hidden" name="id_barang" value="<?= $row['id_barang'] ?>">
     <input type="hidden" name="nama_barang" value="<?= $row['nama_barang'] ?>">
-    <input type="hidden" name="harga_beli" value="<?= $row['harga_beli'] ?>">
+    <input type="hidden" name="harga_beli" value="<?= $row['harga_jual'] ?>">
     <input type="hidden" name="gambar" value="<?= $row['gambar'] ?>">
 
     <button type="submit" class="btn btn-primary btn-custom btn-block mt-3 mb-4">Tambah ke Keranjang</button>
