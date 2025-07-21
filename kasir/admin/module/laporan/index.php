@@ -162,8 +162,7 @@ $bulan_tes = array(
                                 <th style="width:10%;">Jumlah</th>
                                 <th style="width:10%;">Modal</th>
                                 <th style="width:10%;">Total</th>
-                                <!-- <th>Kasir</th> -->
-                                <th style="widht:10%">Keuntungan</th>
+                                <th style="width:10%">Keuntungan</th>
                                 <th style="width:15%;">Tanggal Input</th>
                             </tr>
                         </thead>
