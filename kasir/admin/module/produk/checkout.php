@@ -134,6 +134,8 @@ try {
     exit;
 }
 
+// Pastikan $totalSeluruh sudah diisi sebelum digunakan
+$totalSeluruh = $totalSeluruhTemp;
 if ($phone_num) {
     $stmt = $config->prepare("SELECT id, point, name, diskon FROM member1 WHERE phone = ?");
     $stmt->execute([$phone_num]);
@@ -142,7 +144,6 @@ if ($phone_num) {
         $id_member = $member['id'];
         $nama_member = $member['name'];
         $diskonPersen = 0;
-
         if ($used_poin == 20) {
             $diskonPersen = 0.2;
         } else if ($used_poin == 30) {
@@ -150,30 +151,32 @@ if ($phone_num) {
         } else if ($used_poin == 40) {
             $diskonPersen = 0.4;
         }
-
         $totalDiskonPersen = $diskonPersen * $totalSeluruh;
         $totalSetelahDiskon = $totalSeluruh - $totalDiskonPersen;
         if ($totalSetelahDiskon < 0) $totalSetelahDiskon = 0;
-
         if ($used_poin > 0) {
             $updatePoin = $config->prepare("UPDATE member1 SET point = point - ? WHERE id = ?");
             $updatePoin->execute([$used_poin, $id_member]);
         }
     } else {
         $totalSetelahDiskon = $totalSeluruh;
+        $totalDiskonPersen = 0;
+        $diskonPersen = 0;
     }
 } else {
     $totalSetelahDiskon = $totalSeluruh;
+    $totalDiskonPersen = 0;
+    $diskonPersen = 0;
 }
-
 // Ambil total setelah diskon dari POST jika ada (dari form transaksi)
 if (isset($_POST['totalSetelahDiskonInput']) && is_numeric($_POST['totalSetelahDiskonInput'])) {
     $totalSetelahDiskon = (int)$_POST['totalSetelahDiskonInput'];
+    // Update juga totalDiskonPersen jika inputan ada
+    $totalDiskonPersen = $totalSeluruh - $totalSetelahDiskon;
 }
 $bayar = intval($bayar);
 $kembalian = $bayar - $totalSetelahDiskon;
 if ($kembalian < 0) $kembalian = 0;
-$totalSeluruh = $totalSeluruhTemp;
 ?>
 
 
@@ -220,6 +223,28 @@ $totalSeluruh = $totalSeluruhTemp;
             display: block;
             margin: 20px auto;
         }
+
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .struk, .struk * {
+            visibility: visible;
+          }
+          .struk {
+            position: fixed;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 400px;
+            margin: 0;
+            box-shadow: none;
+            border: none;
+          }
+          .print-btn, .btn, a.btn {
+            display: none !important;
+          }
+        }
     </style>
 </head>
 <body>
@@ -242,18 +267,14 @@ $totalSeluruh = $totalSeluruhTemp;
         <span>Total</span>
         <span>Rp <?= number_format($totalSeluruh, 0, ',', '.') ?></span>
     </div>
-    <?php if ($totalDiskonPersen > 0) { ?>
-        <div class="item">
-            <span>Diskon Member (<?= $diskonPersen * 100 ?>%)</span>
-            <span>- Rp <?= number_format($totalDiskonPersen, 0, ',', '.') ?></span>
-        </div>
-    <?php } ?>
-    <?php if ($totalDiskonPersen > 0) { ?>
-        <div class="item total">
-            <span>Total Setelah Diskon</span>
-            <span>Rp <?= number_format($totalSetelahDiskon, 0, ',', '.') ?></span>
-        </div>
-    <?php } ?>
+    <div class="item">
+        <span>Diskon Member (<?= ($diskonPersen * 100) ?>%)</span>
+        <span>- Rp <?= number_format($totalDiskonPersen, 0, ',', '.') ?></span>
+    </div>
+    <div class="item total">
+        <span>Total Setelah Diskon</span>
+        <span>Rp <?= number_format($totalSetelahDiskon, 0, ',', '.') ?></span>
+    </div>
     <div class="item total">
         <span>Kembalian</span>
         <span>Rp <?= number_format($kembalian, 0, ',', '.') ?></span>
