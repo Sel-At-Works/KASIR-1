@@ -11,7 +11,7 @@ if (isset($_GET['kirim_wa']) && isset($_GET['id_nota'])) {
     $diskon = isset($_GET['diskon']) ? intval($_GET['diskon']) : 0;
 
     // Ambil semua data nota + member untuk satu transaksi
-    $sql = "SELECT n.*, b.nama_barang, b.harga_beli, m.name AS nama_member, m.phone, m.status AS status_member, nu.tanggal_input
+    $sql = "SELECT n.*, b.nama_barang, b.harga_jual, m.name AS nama_member, m.phone, m.status AS status_member, nu.tanggal_input
             FROM nota n
             LEFT JOIN barang b ON n.id_barang = b.id_barang
             LEFT JOIN member1 m ON n.id_member = m.id
@@ -54,8 +54,8 @@ if (isset($_GET['kirim_wa']) && isset($_GET['id_nota'])) {
     $pesan .= "*Tanggal:* {$tanggal}\n\n";
     $pesan .= "*Detail Produk:*\n";
     foreach ($transaksis as $trx) {
-        $subtotal = $trx['harga_beli'] * intval($trx['jumlah']);
-        $pesan .= "- {$trx['nama_barang']} x{$trx['jumlah']} @Rp" . number_format($trx['harga_beli'], 0, ',', '.') . " = Rp" . number_format($subtotal, 0, ',', '.') . "\n";
+        $subtotal = $trx['harga_jual'] * intval($trx['jumlah']);
+        $pesan .= "- {$trx['nama_barang']} x{$trx['jumlah']} @Rp" . number_format($trx['harga_jual'], 0, ',', '.') . " = Rp" . number_format($subtotal, 0, ',', '.') . "\n";
     }
     $pesan .= "\n*Total:* Rp. " . number_format($totalSemua, 0, ',', '.');
     if ($diskon > 0) {

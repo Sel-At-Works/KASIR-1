@@ -241,16 +241,17 @@
 <script>
 	// Tunggu sampai seluruh halaman selesai dimuat
 	$(window).on('load', function() {
-		// Fungsi untuk generate barcode otomatis berbasis waktu
-		function generateBarcode() {
-			const timestamp = Date.now(); // Ambil waktu saat ini
-			const barcode = "BRG" + timestamp; // Format barcode: BRG + timestamp
-			$('#barcodeInput').val(barcode);
+		// Fungsi untuk generate barcode sesuai id_barang
+		function generateBarcodeFromId() {
+			var idBarang = $("input[name='id']").val();
+			if (idBarang) {
+				$('#barcodeInput').val(idBarang);
+			}
 		}
 
-		// Saat modal ditampilkan, jalankan fungsi generateBarcode
+		// Saat modal ditampilkan, jalankan fungsi generateBarcodeFromId
 		$('#myModal').on('shown.bs.modal', function() {
-			generateBarcode();
+			generateBarcodeFromId();
 		});
 	});
 </script>
