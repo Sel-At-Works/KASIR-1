@@ -250,13 +250,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['phone']) && trim($_PO
                                                         <!-- Form to update item quantity -->
                                                         <input type="number" name="jumlah[<?php echo $index; ?>]" value="<?php echo $isi['jumlah']; ?>" class="form-control" min="1">
                                                     </td>
-                                                    <td>Rp.<?= number_format($isi['harga_beli'] * $isi['jumlah']); ?>,-</td>
+                                                    <td>
+    Rp.<?= isset($isi['harga_jual']) ? number_format($isi['harga_jual'] * $isi['jumlah'], 0, ',', '.') : number_format($isi['harga_beli'] * $isi['jumlah'], 0, ',', '.') ?>,-
+</td>
+
 
                                                 </form>
                                             </tr>
                                         <?php
-                                            $no++;
-                                            $total_bayar += $isi['harga_beli'] * $isi['jumlah'];
+                                           $no++;
+                                    $total_bayar += (isset($isi['harga_jual']) ? $isi['harga_jual'] : $isi['harga_beli']) * $isi['jumlah'];
                                         } ?>
                                     </tbody>
                                 </table>

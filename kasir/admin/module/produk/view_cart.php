@@ -160,7 +160,8 @@ if (empty($keranjang)) {
             <img src="../../../admin/module/admin/gambar/<?= $item['gambar'] ?>" class="card-img-top" alt="<?= $item['nama_barang'] ?>">
             <div class="card-body">
               <h5><?= $item['nama_barang'] ?></h5>
-              <p>Harga: Rp <?= number_format($item['harga_beli'], 0, ',', '.') ?></p>
+              
+            <p>Harga: Rp <?= isset($item['harga_jual']) ? number_format($item['harga_jual'], 0, ',', '.') : number_format($item['harga_beli'], 0, ',', '.') ?></p>
               <div class="qty-box mb-2">
                 <input type="number" name="jumlah[<?= $index ?>]" value="<?= $item['jumlah'] ?>" min="1" class="form-control" disabled>
               </div>

@@ -51,8 +51,9 @@ try {
         if (!isset($keranjang[$index])) continue;
         $item = $keranjang[$index];
         $jumlah = max(1, intval($item['jumlah']));
-        $harga_beli = $item['harga_beli'];
-        $totalSeluruhTemp += $harga_beli * $jumlah;
+      $harga_beli = isset($item['harga_jual']) ? $item['harga_jual'] : $item['harga_beli'];
+        $totalSeluruhTemp += (isset($item['harga_jual']) ? $item['harga_jual'] : $item['harga_beli']) * $jumlah;
+
     }
     // Hitung diskon dan total setelah diskon
     $diskonPersen = 0;
@@ -81,8 +82,8 @@ try {
         $id_barang = $item['id_barang'];
         $nama_barang = $item['nama_barang'];
         $jumlah = max(1, intval($item['jumlah']));
-        $harga_beli = $item['harga_beli'];
-        $total = $harga_beli * $jumlah;
+      $harga = isset($item['harga_jual']) ? $item['harga_jual'] : $item['harga_beli'];
+        $total = (isset($item['harga_jual']) ? $item['harga_jual'] : $item['harga_beli']) * $jumlah;
         $cekStok = $config->prepare("SELECT stok FROM barang WHERE id_barang = ?");
         $cekStok->execute([$id_barang]);
         $stokTersedia = $cekStok->fetchColumn();
@@ -256,12 +257,20 @@ if ($kembalian < 0) $kembalian = 0;
     <?php } ?>
     <p>Tanggal: <?= date('d-m-Y H:i:s') ?> WIB</p>
     <div class="line"></div>
-    <?php foreach ($items as $item): ?>
-        <div class="item">
-            <span><?= $item['nama_barang'] ?> x <?= $item['jumlah'] ?></span>
-            <span>Rp <?= number_format($item['harga_beli'] * $item['jumlah'], 0, ',', '.') ?></span>
-        </div>
-    <?php endforeach; ?>
+  <?php foreach ($items as $item): ?>
+    <?php
+    $harga_dipakai = isset($item['harga_jual']) ? $item['harga_jual'] : $item['harga_beli'];
+    $total_item = $harga_dipakai * $item['jumlah'];
+    ?>
+    <div class="item">
+        <span><?= $item['nama_barang'] ?> x <?= $item['jumlah'] ?></span>
+        <span>Rp <?= number_format($total_item, 0, ',', '.') ?></span>
+    </div>
+<?php endforeach; ?>
+<!-- <div class="item">
+    <span><?= $item['nama_barang'] ?> x <?= $item['jumlah'] ?></span>
+    <span>Rp <?= number_format($total_item, 0, ',', '.') ?></span>
+</div> -->
     <div class="line"></div>
     <div class="item total">
         <span>Total</span>

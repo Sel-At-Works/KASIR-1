@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['barcode'])) {
             $_SESSION['keranjang'][] = [
                 'id_barang'   => $produk['id_barang'],
                 'nama_barang' => $produk['nama_barang'],
-                'harga_beli'  => $produk['harga_beli'],
+                'harga_jual'  => $produk['harga_jual'],
                 'gambar'      => $produk['gambar'],
                 'jumlah'      => 1,
                 'total'       => $produk['harga_beli'],
@@ -91,34 +91,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['barcode'])) {
             color: green;
             font-weight: bold;
         }
+        .form-scan {
+            max-width: 400px;
+            margin: 20px auto;
+        }
     </style>
 </head>
 <body>
 
-<h2>📷 Scan Produk untuk Tambah ke Keranjang</h2>
+<h2>📦 Scan Produk (Kamera atau Alat Scanner)</h2>
 
+<!-- ✅ Input untuk alat scanner fisik -->
+<div class="form-scan">
+    <form id="manualScanForm" method="POST" action="scan.php">
+        <label for="barcodeInput">Scan Barcode (Manual):</label>
+        <input type="text" name="barcode" id="barcodeInput" class="form-control" autocomplete="off" autofocus required>
+    </form>
+</div>
+
+<!-- ✅ Scanner Kamera -->
 <div id="reader"></div>
-<div class="loading" id="loadingText">Menunggu scan barcode...</div>
+<div class="loading" id="loadingText">Menunggu scan kamera...</div>
 
+<!-- ✅ Form untuk kamera scanner -->
 <form id="addToCartForm" method="POST" action="scan.php" style="display: none;">
-    <input type="hidden" name="barcode" id="barcodeInput">
+    <input type="hidden" name="barcode" id="barcodeHiddenInput">
 </form>
 
 <script>
+    // 🔁 Fokus terus di input manual (alat scanner)
+    setInterval(() => {
+        document.getElementById('barcodeInput').focus();
+    }, 2000);
+
+    // 🧠 Jika alat scanner tekan Enter, langsung submit
+    document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('manualScanForm').submit();
+        }
+    });
+
+    // 🔍 Kamera Scanner (html5-qrcode)
     let alreadyScanned = false;
-    let html5QrCode = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    let lastScan = ""; // Ini deklarasi variabel lastScan
+    const html5QrCode = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
     function onScanSuccess(decodedText) {
-        // Cegah pemindaian duplikat
         if (alreadyScanned) return;
         alreadyScanned = true;
 
         document.getElementById('loadingText').innerText = "Barcode berhasil: " + decodedText;
-        document.getElementById('barcodeInput').value = decodedText;
+        document.getElementById('barcodeHiddenInput').value = decodedText;
 
         html5QrCode.clear().then(() => {
-            console.log("Scanner stopped.");
+            console.log("Kamera scanner dimatikan.");
         }).catch(console.error);
 
         setTimeout(() => {
@@ -127,22 +153,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['barcode'])) {
     }
 
     function onScanFailure(error) {
-        // Tidak perlu menampilkan error terus-menerus
+        // Tidak tampilkan error ke user
     }
 
-    // Inisialisasi scanner barcode
     html5QrCode.render(onScanSuccess, onScanFailure);
-
-    // Event listener untuk memastikan hanya scan yang unik yang diproses
-    document.querySelector("#barcode_input").addEventListener("change", function () {
-        if (this.value === lastScan) return;
-        lastScan = this.value;
-
-        // Kirim form atau fetch (misalnya menggunakan form submit atau AJAX)
-        document.getElementById('addToCartForm').submit();
-    });
 </script>
-
 
 </body>
 </html>
