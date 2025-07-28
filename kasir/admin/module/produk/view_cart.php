@@ -215,21 +215,26 @@ if (empty($keranjang)) {
     const totalValue = document.getElementById('total-value');
 
     function updateTotal() {
-      let total = 0;
-      checkboxes.forEach((cb, idx) => {
-        if (cb.checked) {
-          const harga = parseInt(document.querySelectorAll('.card-body p')[idx].textContent.replace(/\D/g, ''));
-          total += harga;
-        }
-      });
+  let total = 0;
 
-      if (total > 0) {
-        totalText.style.display = 'block';
-        totalValue.textContent = formatRupiah(total);
-      } else {
-        totalText.style.display = 'none';
-      }
+  checkboxes.forEach((cb, idx) => {
+    if (cb.checked) {
+      const card = cb.closest('.card-body');
+      const hargaText = card.querySelector('p').textContent.replace(/\D/g, '');
+      const harga = parseInt(hargaText);
+      const jumlah = parseInt(card.querySelector('input[type="number"]').value);
+      total += harga * jumlah;
     }
+  });
+
+  if (total > 0) {
+    totalText.style.display = 'block';
+    totalValue.textContent = formatRupiah(total);
+  } else {
+    totalText.style.display = 'none';
+  }
+}
+
 
     checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
   </script>
