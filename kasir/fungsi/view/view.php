@@ -179,18 +179,20 @@
 				$hasil = $row->fetchAll();
 				return $hasil;
 			}
+function periode_jual($periode){
+	$sql = "SELECT nota.*, barang.id_barang, barang.nama_barang, barang.harga_beli, member.id_member,
+			member.nm_member 
+			FROM nota 
+			LEFT JOIN barang ON barang.id_barang = nota.id_barang 
+			LEFT JOIN member ON member.id_member = nota.id_member 
+			WHERE DATE_FORMAT(nota.tanggal_input, '%Y-%m') = ? 
+			ORDER BY id_nota ASC";
+	$row = $this->db->prepare($sql);
+	$row->execute(array($periode));
+	$hasil = $row->fetchAll();
+	return $hasil;
+}
 
-			function periode_jual($periode){
-				$sql ="SELECT nota.* , barang.id_barang, barang.nama_barang, barang.harga_beli, member.id_member,
-						member.nm_member from nota 
-					   left join barang on barang.id_barang=nota.id_barang 
-					left join member on member.id_member=nota.id_member WHERE nota.periode = ? 
-					   ORDER BY id_nota ASC";
-				$row = $this-> db -> prepare($sql);
-				$row -> execute(array($periode));
-				$hasil = $row -> fetchAll();
-				return $hasil;
-			}
 
 			function hari_jual($hari){
 				$sql = "SELECT nota.* , barang.id_barang, barang.nama_barang,  barang.harga_beli, member.id_member,

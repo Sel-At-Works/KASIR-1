@@ -56,13 +56,13 @@
                     <th style="width:10%;"> Total</th>
                     <!-- <th> Kasir</th> -->
                     <th> Tanggal Input</th>
-                </tr>
+                </tr
             </thead>
             <tbody>
                 <?php 
                     $no=1; 
                     if(!empty($_GET['cari'])){
-                        $periode = $_GET['bln'].'-'.$_GET['thn'];
+                       $periode = $_GET['thn'].'-'.$_GET['bln'];
                         $no=1; 
                         $jumlah = 0;
                         $bayar = 0;

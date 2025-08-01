@@ -1,6 +1,9 @@
 <?php
 include '../../../config.php';
 include '../../../fungsi/view/view.php';
+function formatPeriode($bln, $thn) {
+    return sprintf('%04d-%02d', $thn, $bln); // hasil: "2025-08"
+}
 // Array bulan untuk tampilan bulan dalam format teks
 $bulan_tes = array(
     '01' => "Januari",
@@ -23,17 +26,25 @@ $bulan_tes = array(
         <div class="row">
             <div class="col-lg-12 main-chart">
                 <h3>
-                    <?php if (!empty($_GET['cari'])) { ?>
-                        Data Laporan Penjualan <?= $bulan_tes[$_POST['bln']]; ?> <?= $_POST['thn']; ?>
-                    <?php } elseif (!empty($_GET['hari'])) { ?>
-                        Data Laporan Penjualan <?= $_POST['hari']; ?>
-                    <?php } else { ?>
-                        Data Laporan Penjualan <?= $bulan_tes[date('m')]; ?> <?= date('Y'); ?>
-                    <?php } ?>
+                   <?php
+if (!empty($_GET['cari'])) {
+    $bln = $_POST['bln'] ?? ($_GET['bln'] ?? '');
+    $thn = $_POST['thn'] ?? ($_GET['thn'] ?? '');
+    echo "Data Laporan Penjualan " . ($bulan_tes[$bln] ?? 'Unknown') . " " . htmlspecialchars($thn);
+} elseif (!empty($_GET['hari'])) {
+    echo "Data Laporan Penjualan " . htmlspecialchars($_POST['hari']);
+} else {
+    echo "Data Laporan Penjualan " . $bulan_tes[date('m')] . " " . date('Y');
+}
+?>
+
                 </h3>
                 <br />
                 <h4>Cari Laporan Per Bulan</h4>
-                <!-- <form method="post" action="index.php?page=laporan&cari=ok">
+              <form method="get" action="index.php">
+    <input type="hidden" name="page" value="laporan">
+    <input type="hidden" name="cari" value="ok">
+
                     <table class="table table-striped">
                         <tr>
                             <th>Pilih Bulan</th>
@@ -65,28 +76,30 @@ $bulan_tes = array(
                                 ?>
                             </td>
                             <td>
-                                <input type="hidden" name="periode" value="ya">
-                                <button class="btn btn-primary">
-                                    <i class="fa fa-search"></i> Cari
-                                </button>
-                                <a href="index.php?page=laporan" class="btn btn-success">
-                                    <i class="fa fa-refresh"></i> Refresh
-                                </a>
+    <input type="hidden" name="periode" value="ya">
+    <button class="btn btn-primary">
+        <i class="fa fa-search"></i> Cari
+    </button>
+    <a href="index.php?page=laporan" class="btn btn-success">
+        <i class="fa fa-refresh"></i> Refresh
+    </a>
 
-                                <?php if (!empty($_GET['cari']) && isset($_POST['bln'], $_POST['thn'])) { ?>
-                                    <a href="excel.php?cari=yes&bln=<?= htmlspecialchars($_POST['bln']); ?>&thn=<?= htmlspecialchars($_POST['thn']); ?>" class="btn btn-info">
-                                        <i class="fa fa-download"></i> Excel
-                                    </a>
-                                <?php } else { ?>
-                                    <a href="excel.php" class="btn btn-info">
-                                        <i class="fa fa-download"></i> Excel
-                                    </a>
-                                <?php } ?>
+    <?php if (!empty($_GET['cari']) && isset($_GET['bln'], $_GET['thn'])) { ?>
+    <a href="excel.php?cari=yes&bln=<?= htmlspecialchars($_GET['bln']); ?>&thn=<?= htmlspecialchars($_GET['thn']); ?>" class="btn btn-info">
+        <i class="fa fa-download"></i> Excel
+    </a>
+<?php } else { ?>
+    <a href="excel.php" class="btn btn-info">
+        <i class="fa fa-download"></i> Excel
+    </a>
+<?php } ?>
 
-                            </td>
+
+</td>
+
                         </tr>
                     </table>
-                </form> -->
+                </form>
 
                 <form method="post" action="index.php?page=laporan&hari=cek">
     <table class="table table-striped">
@@ -175,10 +188,15 @@ $bulan_tes = array(
                             $modal = 0;
 
                             // Mengambil data berdasarkan periode atau hari yang dipilih
-                            if (!empty($_GET['cari'])) {
-                                $periode = $_POST['bln'] . '-' . $_POST['thn'];
-                                $hasil = $lihat->periode_jual($periode); // Mengambil data berdasarkan periode
-                            } elseif (!empty($_GET['hari'])) {
+                                                    if (!empty($_GET['cari'])) {
+                            $bln = $_GET['bln'] ?? '';
+                            $thn = $_GET['thn'] ?? '';
+
+
+                            $periode = formatPeriode($bln, $thn); // format: "2025-08"
+                            $hasil = $lihat->periode_jual($periode);
+                        }
+                        elseif (!empty($_GET['hari'])) {
                                 $hari = $_POST['hari'];
                                 $hasil = $lihat->hari_jual($hari); // Mengambil data berdasarkan hari
                             } else {
@@ -271,5 +289,10 @@ function combineDate() {
     // Gabungkan jadi format YYYY-MM-DD
     let fullDate = `${year}-${month}-${day}`;
     document.getElementById('hari').value = fullDate;
+}
+function submitBulan() {
+    const bln = document.querySelector('select[name="bln"]').value;
+    const thn = document.querySelector('select[name="thn"]').value;
+    window.location.href = `index.php?page=laporan&cari=ok&bln=${bln}&thn=${thn}`;
 }
 </script>
